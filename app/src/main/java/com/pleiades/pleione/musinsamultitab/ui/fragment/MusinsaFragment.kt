@@ -1,8 +1,10 @@
 package com.pleiades.pleione.musinsamultitab.ui.fragment
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +13,21 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.fragment.app.Fragment
+import androidx.room.Room
+import com.pleiades.pleione.musinsamultitab.Config
+import com.pleiades.pleione.musinsamultitab.Config.Companion.DEFAULT_URL
 import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_CURRENT_TAB_TIME
 import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_CURRENT_TAB_URL_STRING
 import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_STACK
 import com.pleiades.pleione.musinsamultitab.Config.Companion.PREFS
+import com.pleiades.pleione.musinsamultitab.Config.Companion.TABLE_NAME
 import com.pleiades.pleione.musinsamultitab.R
+import com.pleiades.pleione.musinsamultitab.data.UrlStringDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MusinsaFragment : Fragment() {
     companion object {
@@ -40,9 +51,9 @@ class MusinsaFragment : Fragment() {
 
         // initialize url
         var urlString = prefs.getString(KEY_CURRENT_TAB_URL_STRING, null)
-        if(urlString == null){
-            urlString = "https://m.store.musinsa.com/"
-            editor.putString(KEY_CURRENT_TAB_URL_STRING, "https://m.store.musinsa.com/")
+        if (urlString == null) {
+            urlString = DEFAULT_URL
+            editor.putString(KEY_CURRENT_TAB_URL_STRING, DEFAULT_URL)
             editor.putLong(KEY_CURRENT_TAB_TIME, System.currentTimeMillis())
             editor.apply()
         }
@@ -74,6 +85,18 @@ class MusinsaFragment : Fragment() {
         }
 
         return rootView
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // set button text (tab size)
+        val database = Room.databaseBuilder(requireContext(), UrlStringDatabase::class.java, TABLE_NAME).build()
+        val dao = database.urlStringDao()
+        CoroutineScope(Dispatchers.IO).launch {
+            val tableSize = dao.getUrlStrings().size + 1
+            button.text = tableSize.toString()
+        }
     }
 
     override fun onAttach(context: Context) {

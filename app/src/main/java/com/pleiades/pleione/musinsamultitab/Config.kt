@@ -10,6 +10,7 @@ class Config {
         const val PREFS = "prefs"
         const val KEY_CURRENT_TAB_URL_STRING = "current_tab_url_string"
         const val KEY_CURRENT_TAB_TIME = "current_tab_time"
+        const val DEFAULT_URL = "https://m.store.musinsa.com/"
 
         // fragment
         const val KEY_STACK = "stack"

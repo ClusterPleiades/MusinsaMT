@@ -12,7 +12,7 @@ import com.pleiades.pleione.musinsamultitab.data.UrlStringDatabase
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val database = Room.databaseBuilder(getApplication<Application>().applicationContext, UrlStringDatabase::class.java, TABLE_NAME).build()
     private val dao = database.urlStringDao()
-    val notes = dao.getUrlStrings()
+    val urlStrings = dao.getUrlStringsFlow()
 
     @WorkerThread
     fun insert(urlString: UrlString) {

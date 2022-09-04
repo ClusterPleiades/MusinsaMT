@@ -6,7 +6,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UrlStringDao {
     @Query("SELECT * FROM urlString") // ORDER BY time ASC
-    fun getUrlStrings() : Flow<List<UrlString>>
+    fun getUrlStringsFlow() : Flow<List<UrlString>>
+
+    @Query("SELECT * FROM urlString") // ORDER BY time ASC
+    fun getUrlStrings() : List<UrlString>
 
     @Insert
     fun insertNote(urlString : UrlString)

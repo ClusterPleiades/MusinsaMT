@@ -2,4 +2,6 @@
     <string name="app_name">무신사 MT</string>
 
     <string name="back">Back</string>
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
 </resources>
