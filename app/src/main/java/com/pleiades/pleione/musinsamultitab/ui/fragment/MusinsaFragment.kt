@@ -1,24 +1,35 @@
-package com.pleiades.pleione.musinsamultitab
+package com.pleiades.pleione.musinsamultitab.ui.fragment
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
+import com.pleiades.pleione.musinsamultitab.R
 
-class MainActivity : AppCompatActivity() {
-    lateinit var webView: WebView
+class MusinsaFragment : Fragment() {
+    companion object {
+        fun newInstance(): MusinsaFragment {
+            return MusinsaFragment()
+        }
+    }
+
+    private lateinit var rootView: View
+    private lateinit var webView: WebView
 
     @SuppressLint("SetJavaScriptEnabled")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        // initialize root view
+        rootView = inflater.inflate(R.layout.fragment_musinsa, container, false)
 
         // initialize web view
-        webView = findViewById<WebView>(R.id.web_view)
+        webView = rootView.findViewById(R.id.web_view)
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 view?.loadUrl(request?.url.toString())
@@ -30,13 +41,19 @@ class MainActivity : AppCompatActivity() {
         webView.settings.domStorageEnabled = true
         webView.loadUrl("https://m.store.musinsa.com/")
 
+        return rootView
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
         // initialize on back pressed
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (webView.canGoBack())
                     webView.goBack()
                 else
-                    finish()
+                    requireActivity().finish()
             }
         })
     }
