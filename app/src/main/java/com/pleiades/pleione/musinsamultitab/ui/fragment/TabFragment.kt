@@ -7,6 +7,7 @@ import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -35,6 +36,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pleiades.pleione.musinsamultitab.Config.Companion.DEFAULT_URL
+import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_CURRENT_TAB_TIME
 import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_CURRENT_TAB_URL_STRING
 import com.pleiades.pleione.musinsamultitab.Config.Companion.PREFS
 import com.pleiades.pleione.musinsamultitab.R
@@ -130,12 +132,28 @@ private fun ComposeUI(viewModel: MainViewModel) {
 private fun ComposeUrlStrings(urlStrings: List<UrlString>, viewModel: MainViewModel) {
     val coroutineScope = rememberCoroutineScope()
 
+    val prefs = LocalContext.current.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    val editor = prefs.edit()
+
+    val currentUrlString = prefs.getString(KEY_CURRENT_TAB_URL_STRING, DEFAULT_URL)!!
+    val currentTime = prefs.getLong(KEY_CURRENT_TAB_TIME, System.currentTimeMillis())
+
     Surface(
         color = Color.White
     ) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyColumn {
             itemsIndexed(items = urlStrings) { _, urlString ->
                 ComposeUrlStringItem(urlString,
+                    onClicked = { item ->
+                        coroutineScope.launch(Dispatchers.IO) {
+                            viewModel.insert(UrlString(currentTime, currentUrlString))
+                            editor.putString(KEY_CURRENT_TAB_URL_STRING, item.urlString)
+                            editor.putLong(KEY_CURRENT_TAB_TIME, item.time)
+                            editor.apply()
+                            viewModel.delete(item)
+                            TabFragment.supportFragmentManager.popBackStack()
+                        }
+                    },
                     onDeleted = { item ->
                         coroutineScope.launch(Dispatchers.IO) {
                             viewModel.delete(item)
@@ -147,8 +165,8 @@ private fun ComposeUrlStrings(urlStrings: List<UrlString>, viewModel: MainViewMo
 }
 
 @Composable
-private fun ComposeUrlStringItem(urlString: UrlString, onDeleted: (UrlString) -> Unit) {
-    Row {
+private fun ComposeUrlStringItem(urlString: UrlString, onClicked: (UrlString) -> Unit, onDeleted: (UrlString) -> Unit) {
+    Row(Modifier.clickable(onClick = { onClicked(urlString) })) {
         Text(
             modifier = Modifier
                 .weight(1f)

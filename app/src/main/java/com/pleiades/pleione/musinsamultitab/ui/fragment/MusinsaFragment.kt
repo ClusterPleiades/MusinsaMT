@@ -97,6 +97,11 @@ class MusinsaFragment : Fragment() {
             val tableSize = dao.getUrlStrings().size + 1
             button.text = tableSize.toString()
         }
+
+        // from tab
+        val prefs = requireContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val urlString = prefs.getString(KEY_CURRENT_TAB_URL_STRING, null)!!
+        webView.loadUrl(urlString)
     }
 
     override fun onAttach(context: Context) {
