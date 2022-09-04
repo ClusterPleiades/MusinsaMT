@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">무신사 MT</string>
+
+    <string name="back">Back</string>
 </resources>

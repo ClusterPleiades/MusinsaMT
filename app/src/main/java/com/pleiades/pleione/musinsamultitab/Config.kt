@@ -8,7 +8,8 @@ class Config {
 
         // prefs
         const val PREFS = "prefs"
-        const val KEY_CURRENT_URL_STRING = "current_url_string"
+        const val KEY_CURRENT_TAB_URL_STRING = "current_tab_url_string"
+        const val KEY_CURRENT_TAB_TIME = "current_tab_time"
 
         // fragment
         const val KEY_STACK = "stack"

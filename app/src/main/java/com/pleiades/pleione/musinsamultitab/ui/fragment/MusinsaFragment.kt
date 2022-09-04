@@ -12,7 +12,8 @@ import android.webkit.WebViewClient
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_CURRENT_URL_STRING
+import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_CURRENT_TAB_TIME
+import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_CURRENT_TAB_URL_STRING
 import com.pleiades.pleione.musinsamultitab.Config.Companion.KEY_STACK
 import com.pleiades.pleione.musinsamultitab.Config.Companion.PREFS
 import com.pleiades.pleione.musinsamultitab.R
@@ -33,16 +34,26 @@ class MusinsaFragment : Fragment() {
         // initialize root view
         rootView = inflater.inflate(R.layout.fragment_musinsa, container, false)
 
+        // initialize prefs
+        val prefs = requireContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+
+        // initialize url
+        var urlString = prefs.getString(KEY_CURRENT_TAB_URL_STRING, null)
+        if(urlString == null){
+            urlString = "https://m.store.musinsa.com/"
+            editor.putString(KEY_CURRENT_TAB_URL_STRING, "https://m.store.musinsa.com/")
+            editor.putLong(KEY_CURRENT_TAB_TIME, System.currentTimeMillis())
+            editor.apply()
+        }
+
         // initialize web view
         webView = rootView.findViewById(R.id.web_view)
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                val urlString = request?.url.toString()
-                view?.loadUrl(urlString)
-
-                val prefs = requireContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                val editor = prefs.edit()
-                editor.putString(KEY_CURRENT_URL_STRING, urlString)
+                view?.loadUrl(request?.url.toString())
+                editor.putString(KEY_CURRENT_TAB_URL_STRING, request?.url.toString())
+                editor.putLong(KEY_CURRENT_TAB_TIME, System.currentTimeMillis())
                 editor.apply()
                 return super.shouldOverrideUrlLoading(view, request)
             }
@@ -50,7 +61,7 @@ class MusinsaFragment : Fragment() {
         webView.settings.javaScriptEnabled = true
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
         webView.settings.domStorageEnabled = true
-        webView.loadUrl("https://m.store.musinsa.com/")
+        webView.loadUrl(urlString)
 
         // initialize button
         button = rootView.findViewById(R.id.button)
